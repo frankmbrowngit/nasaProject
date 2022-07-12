@@ -13,9 +13,11 @@ function useLaunches(onSuccessSound, onAbortSound, onFailureSound) {
   const getLaunches = useCallback(async () => {
     const fetchedLaunches = await httpGetLaunches();
     saveLaunches(fetchedLaunches);
+    console.log(`fetchedLaunches = ${fetchedLaunches}`);
   }, []);
 
   useEffect(() => {
+    console.log('Getting launches')
     getLaunches();
   }, [getLaunches]);
 
@@ -43,7 +45,10 @@ function useLaunches(onSuccessSound, onAbortSound, onFailureSound) {
         onSuccessSound();
       }, 800);
     } else {
-      onFailureSound();
+      setTimeout(() => {
+        setPendingLaunch(false);
+        onFailureSound();
+      },800);
     }
   }, [getLaunches, onSuccessSound, onFailureSound]);
 
@@ -51,7 +56,7 @@ function useLaunches(onSuccessSound, onAbortSound, onFailureSound) {
     const response = await httpAbortLaunch(id);
 
     // TODO: Set success based on response.
-    const success = false;
+    const success = response.ok;
     if (success) {
       getLaunches();
       onAbortSound();
